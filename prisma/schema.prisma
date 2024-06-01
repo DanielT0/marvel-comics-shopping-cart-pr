@@ -15,5 +15,7 @@ datasource db {
 
 model purchasedComics{
   id String @id
+  src String
+  title String 
   purchasedAt DateTime @default(now())
 }

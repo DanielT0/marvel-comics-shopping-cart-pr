@@ -1,3 +1,4 @@
+import { IComicPurchase } from "@/interfaces/purchases";
 import prisma from "@/lib/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 
@@ -7,29 +8,30 @@ export default async function handler(
 ) {
   if (req.method === "GET") {
     try {
-      const purchasedComicsIds = await prisma.purchasedComics.findMany();
+      const purchasedComics = await prisma.purchasedComics.findMany();
       res.status(200).json({
         message: "Comics found",
-        data: { comics: purchasedComicsIds },
+        data: { comics: purchasedComics },
       });
     } catch (error) {
       res.status(500).json({ message: "Internal server error", error });
     }
   }
   if (req.method === "POST") {
-    const ids: string[] = req.body.ids;
-    if (!ids || ids.length === 0)
-      res.status(400).json({ message: "Missing required body param: ids" });
+    const purchases: IComicPurchase[] = req.body.purchases;
+    if (!purchases || purchases.length === 0)
+      res
+        .status(400)
+        .json({ message: "Missing required body property: purchases" });
     try {
-      const purchases = ids.map((id) => {
-        return { id };
-      });
       await prisma.purchasedComics.createMany({
-        data: purchases,
+        data: purchases.map((purchase) => {
+          return { ...purchase, id: purchase.id.toString() };
+        }),
       });
       res.status(200).json({
         message: "Comics added to purchases",
-        data: { ids },
+        data: { purchases },
       });
     } catch (error) {
       res.status(500).json({ message: "Internal server error", error });

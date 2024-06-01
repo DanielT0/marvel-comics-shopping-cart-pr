@@ -41,7 +41,6 @@ export default function Home() {
         className="opacity-40"
         src="/marvel-background.jpg"
         alt="Marvel Background"
-        // placeholder="blur"
         quality={100}
         fill
         sizes="100vw"
@@ -52,8 +51,6 @@ export default function Home() {
       />
       <div className="flex flex-col text-center opacity-100">
         <h1 className="fond-bold text-3xl">NextJS Marvel Comic List</h1>
-        <h3 className="text-xl">Server Side Rendering</h3>
-        <h3 className="text-xl">Client Side Rendering</h3>
       </div>
     </main>
   );

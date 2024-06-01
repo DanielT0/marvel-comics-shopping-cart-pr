@@ -3,7 +3,7 @@ import { CartItem } from "../cart-item/cart-item";
 import { Context } from "@/utils/context";
 import { IComic } from "@/interfaces/comics";
 import { showSuccessToast } from "@/utils/toast";
-import { useRouter } from "next/navigation";
+import { IComicPurchase } from "@/interfaces/purchases";
 
 interface SidebarProps {
   isVisible: boolean;
@@ -13,22 +13,26 @@ interface SidebarProps {
 export function Sidebar({ isVisible, toggleVisibility }: SidebarProps) {
   const context = useContext(Context);
   const items = context.getCartItems();
-  const router = useRouter();
 
   async function buyItems(items: IComic[]) {
-    const itemsIds = items.map((item) => item.id.toString());
+    const purchasedItems: IComicPurchase[] = items.map((item) => {
+      return {
+        id: item.id,
+        title: item.title,
+        src: item.thumbnail.path + "." + item.thumbnail.extension,
+      };
+    });
     const rawResponse = await fetch("http://localhost:3000/api/my-purchases/", {
       method: "POST",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ ids: itemsIds }),
+      body: JSON.stringify({ purchases: purchasedItems }),
     });
 
     if (rawResponse.status === 200) {
       context.deleteCartItems();
-      setTimeout(() => router.push("/my-comics"), 4000);
       showSuccessToast("Items are yours now :)");
     }
   }
@@ -38,7 +42,6 @@ export function Sidebar({ isVisible, toggleVisibility }: SidebarProps) {
       className={`fixed top-0 right-0 z-20 w-[22vw] h-full pl-8 pr-5 pt-4 overflow-y-auto transition-transform bg-white dark:bg-gray-800 h-full ${
         !isVisible ? "translate-x-[22vw]" : ""
       }`}
-      // tabindex="-1"
       aria-labelledby="drawer-navigation-label"
     >
       <button

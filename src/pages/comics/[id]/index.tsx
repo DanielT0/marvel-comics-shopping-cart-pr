@@ -1,29 +1,74 @@
 import { IComic } from "@/interfaces/comics";
 import { Context } from "@/utils/context";
-import marvelFetch, { MarvelData } from "@/utils/marvelFetch";
-import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import marvelFetch, { MarvelApiResponse } from "@/utils/marvelFetch";
+import type {
+  GetStaticPaths,
+  GetStaticProps,
+  InferGetStaticPropsType,
+} from "next";
 import Image from "next/image";
 import { useContext } from "react";
 
-export const getServerSideProps = (async (context: any) => {
-  // Fetch data from external API
-  const comicsData: MarvelData<IComic> = await marvelFetch<IComic>(
-    `comics/${context.params.id}`,
+export const getStaticPaths = (async () => {
+  const comicsRes: MarvelApiResponse<IComic> = await marvelFetch<IComic>(
+    "comics",
+    {
+      // titleStartsWith: "Ant-Man",
+      // startYear: 2024,
+      dateDescriptor: "thisMonth",
+      limit: 10,
+    }
   );
+  const comics = comicsRes.data.results;
+  const paths = comics
+    // TODO: Remove this validations to get errors and handle the scenario when error page is pregenerated
+    .filter((comic: IComic) => comic.id && comic.images && comic.images[0])
+    .map((comic: IComic) => ({
+      params: { id: String(comic.id) },
+    }));
+
+  return {
+    paths,
+    fallback: "blocking", // true, false or "blocking"
+  };
+}) satisfies GetStaticPaths;
+
+export const getStaticProps = (async (context: any) => {
+  let comic: IComic;
+  try {
+    // Fetch data from external API
+    const comicRes: MarvelApiResponse<IComic> = await marvelFetch<IComic>(
+      `comics/${context.params.id}`
+    );
+    comic = comicRes.data.results[0];
+  } catch (e) {
+    console.log("error getting comic in comic static page", e);
+    return {
+      notFound: true,
+    };
+  }
+
+  if (!comic) {
+    return {
+      notFound: true,
+    };
+  }
 
   // Pass data to the page via props
-  return { props: { comic: comicsData.results[0] } };
-}) satisfies GetServerSideProps<{ comic: IComic }>;
+  return {
+    props: { comic },
+    // revalidate: 10
+  };
+}) satisfies GetStaticProps<{ comic: IComic }>;
 
 export default function Page({
   comic,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+}: InferGetStaticPropsType<typeof getStaticProps>) {
   const context = useContext(Context);
-
-  function addComicToCart(comic: IComic) {
+  const addComicToCart = (comic: IComic) => {
     context.addCartItem(comic);
     context.setSidebarVisibility(true);
-  }
+  };
 
   return (
     <main className="">

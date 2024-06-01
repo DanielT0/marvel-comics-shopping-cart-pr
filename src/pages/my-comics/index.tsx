@@ -1,42 +1,44 @@
 import { ComicCard } from "@/components/comic-card/comic-card";
-import { IComic } from "@/interfaces/comics";
-import marvelFetch, { MarvelData } from "@/utils/marvelFetch";
+import { IComicPurchase } from "@/interfaces/purchases";
+import prisma from "@/lib/prisma";
 
-interface SavedComic {
-  id: string;
-  purchasedAt: string;
-}
+// export async function getServerSideProps() {
+//   const savedComicsRes = await fetch("http://localhost:3000/api/my-purchases");
+//   const savedComicsResponse = await savedComicsRes.json();
+//   const savedComics: IComicPurchase[] = savedComicsResponse.data.comics;
+//   return { props: { comics: savedComics } };
+// }
 
 export async function getServerSideProps() {
-  const savedComicsIdsRes = await fetch(
-    "http://localhost:3000/api/my-purchases",
-  );
-  const comicsData: MarvelData<IComic> = await marvelFetch<IComic>("comics", {
-    dateDescriptor: "thisMonth",
+  const purchases = await prisma.purchasedComics.findMany();
+  const savedComics: IComicPurchase[] = purchases.map((comic) => {
+    return {
+      ...comic,
+      id: Number(comic.id),
+      purchasedAt: comic.purchasedAt.toString(),
+    };
   });
-  const comics: IComic[] = comicsData.results;
-  const savedComicsResponse = await savedComicsIdsRes.json();
-  const savedComics: SavedComic[] = savedComicsResponse.data.comics;
-  const purchases = savedComics.map((savedComic) =>
-    comics.find((comic) => comic.id.toString() === savedComic.id),
-  );
-  return { props: { comics: purchases } };
+
+  return { props: { comics: savedComics } };
 }
 
-export default function PurchasedComics({ comics }: { comics: IComic[] }) {
+export default function PurchasedComics({
+  comics,
+}: {
+  comics: IComicPurchase[];
+}) {
   return (
     <main className="grid grid-cols-5 ml-[150px]  justify-evenly gap-y-12 mt-[100px]">
-      {comics
-        .filter((comic) => comic.images && comic.images[0])
-        .map((comic: IComic) => (
-          <ComicCard
-            key={comic.id}
-            id={comic.id}
-            name={comic.title}
-            src={comic.thumbnail.path + "." + comic.thumbnail.extension}
-            alt={comic.id.toString()}
-          />
-        ))}
+      {comics.map((comic: IComicPurchase) => (
+        <ComicCard
+          key={comic.id}
+          id={comic.id}
+          name={comic.title}
+          src={comic.src}
+          alt={comic.id.toString()}
+          disabled={true}
+        />
+      ))}
     </main>
   );
 }
