@@ -34,7 +34,7 @@ export function Loader() {
   ));
 
   const [imageIndex, setImageIndex] = useState(
-    Math.floor(Math.random() * images.length),
+    Math.floor(Math.random() * images.length)
   );
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export function Loader() {
     const interval = setInterval(() => changeInRangeImageIndex(), 1000);
 
     return () => clearInterval(interval);
-  }, [imageIndex, images.length]);
+  }, [imageIndex]);
 
   return (
     <>

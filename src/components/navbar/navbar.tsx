@@ -15,48 +15,38 @@ export default function Navbar() {
         isVisible={context.getSidebarVisibility()}
         toggleVisibility={() => context.toggleSidebarVisibility()}
       />
-      <nav className="flex h-fit pt-[80px] items-center justify-center">
-        <div className="w-[85%] flex items-center justify-between flex-col sm:flex-row">
-          <div className="flex items-center justify-center sm:space-x-[150px] flex-col sm:flex-row ">
-            <Link href={"/"}>
+      <nav className="flex h-16 mt-[80px] w-screen items-center justify-between">
+        <div className=" ml-[150px] mr-[150px] flex items-center w-screen justify-between">
+          <div className="flex items-center space-x-[150px]">
+            <Link href={"/comics"}>
               <Image
-                className="min-w-[100px]"
                 width={100}
                 height={10}
                 src="/marvel-logo.png"
                 alt="logo"
               />
             </Link>
-            <div className="justify-center items-center flex sm:space-x-8 tex-lg flex-col sm:flex-row gap-y-4">
+            <div className="space-x-8 tex-lg">
               <Link
                 className={`${
-                  router.pathname === "/comics" && "bg-gray-900"
+                  router.pathname.includes("/comics") && "bg-gray-900"
                 } text-white rounded-md px-3 py-2 font-medium`}
                 aria-current="page"
                 href="/comics"
               >
-                Comics SSR
+                Comics
               </Link>
               <Link
-                className={`${
-                  router.pathname === "/comics/client" && "bg-gray-900"
-                } text-white rounded-md px-3 py-2 font-medium`}
-                aria-current="page"
-                href="/comics/client"
-              >
-                Comics CSR
-              </Link>
-              {/* <Link
                 href="/my-comics"
                 className={`${
                   router.pathname === "/my-comics" && "bg-gray-900"
                 } text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 font-medium`}
               >
                 My comics
-              </Link> */}
+              </Link>
             </div>
           </div>
-          {/* <div
+          <div
             className="cursor-pointer text-white"
             onClick={() => context.toggleSidebarVisibility()}
           >
@@ -72,7 +62,7 @@ export default function Navbar() {
                 </span>
               </div>
             </div>
-          </div> */}
+          </div>
         </div>
       </nav>
     </>

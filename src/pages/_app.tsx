@@ -45,12 +45,12 @@ export default function App({ Component, pageProps }: AppProps) {
       />
       <ToastContainer />
       <ContextProvider>
-        <div className="h-full w-full">
-          <div className="absolute h-full w-full">
+        <div className="h-full">
+          <div className="absolute h-full">
             <Navbar />
             <Component {...pageProps} />
           </div>
-          {false && (
+          {loading && (
             <div className="fixed z-20 w-full h-full backdrop-blur-lg opacity-90 bg-black text-lg text-white">
               <div className="w-full h-full flex items-center justify-center flex-col">
                 <Loader />
