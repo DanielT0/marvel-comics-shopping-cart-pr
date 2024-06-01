@@ -12,10 +12,10 @@ export interface MarvelApiResponse<T> {
   attributionText: string;
   attributionHTML: string;
   etag: string;
-  data: Data<T>;
+  data: MarvelData<T>;
 }
 
-export interface Data<T> {
+export interface MarvelData<T> {
   offset: number;
   limit: number;
   total: number;
@@ -60,15 +60,23 @@ function fetchMarvelAPI(partialUrl: string, options: FetchOptionsI) {
 export default async function marvelFetch<T>(
   partialUrl: string,
   options: FetchOptionsI = {},
-): Promise<MarvelApiResponse<T>> {
-  return fetchMarvelAPI(partialUrl, options)
-    .then((response) => response.json())
-    .then((jsonResponse: any) => {
-      // For flexibility
-      if (!jsonResponse.data || !jsonResponse.data.results) {
-        throw new Error("Invalid or unexpected Marvel API response format");
-      }
-      // TODO: We should return just data from the repsonse
-      return jsonResponse as MarvelApiResponse<T>;
-    });
+): Promise<MarvelData<T>> {
+  try {
+    const response = await fetchMarvelAPI(partialUrl, options);
+
+    if (!response.ok) {
+      throw new Error(`Error fetching Marvel data: ${response.status}`);
+    }
+
+    const jsonResponse = await response.json();
+
+    // For flexibility
+    if (!jsonResponse.data || !jsonResponse.data.results) {
+      throw new Error("Invalid or unexpected Marvel API response format");
+    }
+
+    return jsonResponse.data as MarvelData<T>;
+  } catch (error: any) {
+    throw new Error("Error fetching Marvel endpoing", error);
+  }
 }

@@ -1,4 +1,3 @@
-"use client";
 import { IComic } from "@/interfaces/comics";
 import { Context } from "@/utils/context";
 import { MarvelApiResponse } from "@/utils/marvelFetch";

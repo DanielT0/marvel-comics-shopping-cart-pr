@@ -13,6 +13,10 @@ const config: Config = {
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
+      gridTemplateColumns: {
+        "auto-fill-150": "repeat(auto-fill, minmax(150px, 1fr))",
+        "auto-fit-150": "repeat(auto-fit, minmax(150px, 1fr))",
+      },
     },
   },
   plugins: [require("flowbite/plugin")],
